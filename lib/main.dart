@@ -16,6 +16,7 @@ class ZaghrosSparePartsApp extends StatelessWidget {
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
       scaffoldBackgroundColor: const Color(0xFFF3F3F5),
+      fontFamily: 'Vazir',
     );
 
     return MaterialApp(
@@ -1199,26 +1200,24 @@ class _InventoryPageState extends State<InventoryPage> {
                     );
                   }
 
-                  return Expanded(
-                    child: GridView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 1,
-                      ),
-                      itemCount: visibleParts.length,
-                      itemBuilder: (context, index) {
-                        final part = visibleParts[index];
-                        return _InventoryCard(
-                          part: part,
-                          selectedVehicle: widget.selectedVehicle,
-                          isFavorite: widget.favoritePartIds.contains(part.id),
-                          onFavoriteTap: () => widget.onToggleFavorite(part.id),
-                        );
-                      },
+                  return GridView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1,
                     ),
+                    itemCount: visibleParts.length,
+                    itemBuilder: (context, index) {
+                      final part = visibleParts[index];
+                      return _InventoryCard(
+                        part: part,
+                        selectedVehicle: widget.selectedVehicle,
+                        isFavorite: widget.favoritePartIds.contains(part.id),
+                        onFavoriteTap: () => widget.onToggleFavorite(part.id),
+                      );
+                    },
                   );
                 },
               ),
@@ -2059,23 +2058,9 @@ class _NetworkPhoto extends StatelessWidget {
       );
     }
 
-    return Image.network(
+    return Image.asset(
       imageUrl,
       fit: fit,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) {
-          return child;
-        }
-        return Container(
-          color: const Color(0xFFF1F4F9),
-          alignment: Alignment.center,
-          child: const SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        );
-      },
       errorBuilder: (context, error, stackTrace) {
         return Container(
           color: const Color(0xFFF1F4F9),
@@ -3226,8 +3211,7 @@ class DemoData {
       icon: Icons.local_offer_rounded,
       startColor: Color(0xFF1565C0),
       endColor: Color(0xFF42A5F5),
-      imageUrl:
-          'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_190574.jpg',
     ),
     Campaign(
       title: 'فروش ویژه تعمیرگاه‌ها',
@@ -3235,8 +3219,7 @@ class DemoData {
       icon: Icons.storefront_rounded,
       startColor: Color(0xFF1F4D96),
       endColor: Color(0xFF2E69C7),
-      imageUrl:
-          'https://images.pexels.com/photos/3807501/pexels-photo-3807501.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_3807501.jpg',
     ),
     Campaign(
       title: 'ارسال سریع تهران',
@@ -3244,8 +3227,7 @@ class DemoData {
       icon: Icons.local_shipping_rounded,
       startColor: Color(0xFF0D7E5A),
       endColor: Color(0xFF2A9D73),
-      imageUrl:
-          'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_2244746.jpg',
     ),
   ];
 
@@ -3291,8 +3273,7 @@ class DemoData {
       rating: 4.8,
       warehouse: 'انبار مرکزی اربیل',
       featured: true,
-      imageUrl:
-          'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_190574.jpg',
     ),
     SparePart(
       id: 2,
@@ -3307,8 +3288,7 @@ class DemoData {
       rating: 4.7,
       warehouse: 'هاب سلیمانیه',
       featured: true,
-      imageUrl:
-          'https://images.pexels.com/photos/4489734/pexels-photo-4489734.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_4489734.jpg',
     ),
     SparePart(
       id: 3,
@@ -3323,8 +3303,7 @@ class DemoData {
       rating: 4.9,
       warehouse: 'انبار مرکزی اربیل',
       featured: true,
-      imageUrl:
-          'https://images.pexels.com/photos/3807501/pexels-photo-3807501.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_3807501.jpg',
     ),
     SparePart(
       id: 4,
@@ -3339,8 +3318,7 @@ class DemoData {
       rating: 4.4,
       warehouse: 'انبار دهوک',
       featured: false,
-      imageUrl:
-          'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_2244746.jpg',
     ),
     SparePart(
       id: 5,
@@ -3355,8 +3333,7 @@ class DemoData {
       rating: 4.6,
       warehouse: 'انبار مرکزی اربیل',
       featured: true,
-      imageUrl:
-          'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_190574.jpg',
     ),
     SparePart(
       id: 6,
@@ -3371,8 +3348,7 @@ class DemoData {
       rating: 4.5,
       warehouse: 'شعبه شریک کرکوک',
       featured: false,
-      imageUrl:
-          'https://images.pexels.com/photos/4489734/pexels-photo-4489734.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_4489734.jpg',
     ),
     SparePart(
       id: 7,
@@ -3387,8 +3363,7 @@ class DemoData {
       rating: 4.7,
       warehouse: 'هاب سلیمانیه',
       featured: true,
-      imageUrl:
-          'https://images.pexels.com/photos/3807501/pexels-photo-3807501.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_3807501.jpg',
     ),
     SparePart(
       id: 8,
@@ -3403,8 +3378,7 @@ class DemoData {
       rating: 4.4,
       warehouse: 'انبار مرکزی اربیل',
       featured: false,
-      imageUrl:
-          'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_2244746.jpg',
     ),
     SparePart(
       id: 9,
@@ -3419,8 +3393,7 @@ class DemoData {
       rating: 4.3,
       warehouse: 'انبار دهوک',
       featured: false,
-      imageUrl:
-          'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_190574.jpg',
     ),
     SparePart(
       id: 10,
@@ -3435,8 +3408,7 @@ class DemoData {
       rating: 4.8,
       warehouse: 'هاب سلیمانیه',
       featured: false,
-      imageUrl:
-          'https://images.pexels.com/photos/4489734/pexels-photo-4489734.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_4489734.jpg',
     ),
     SparePart(
       id: 11,
@@ -3451,8 +3423,7 @@ class DemoData {
       rating: 4.2,
       warehouse: 'شعبه شریک کرکوک',
       featured: false,
-      imageUrl:
-          'https://images.pexels.com/photos/3807501/pexels-photo-3807501.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_3807501.jpg',
     ),
     SparePart(
       id: 12,
@@ -3467,8 +3438,7 @@ class DemoData {
       rating: 4.5,
       warehouse: 'انبار مرکزی اربیل',
       featured: false,
-      imageUrl:
-          'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+      imageUrl: 'assets/images/part_2244746.jpg',
     ),
   ];
 
