@@ -415,7 +415,9 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
     final compact = width < 390;
     final tablet = width >= 720;
     final pageHorizontalPadding = tablet ? 28.0 : (compact ? 12.0 : 18.0);
-    final dealCardHeight = tablet ? 280.0 : (compact ? 236.0 : 258.0);
+    final heroImageHeight = tablet ? 290.0 : (compact ? 205.0 : 245.0);
+    final campaignHeight = tablet ? 188.0 : (compact ? 158.0 : 176.0);
+    final dealCardHeight = tablet ? 338.0 : (compact ? 286.0 : 314.0);
     final dealCardWidth = tablet ? 235.0 : (compact ? 176.0 : 205.0);
     final categoryCardWidth = tablet ? 126.0 : (compact ? 100.0 : 110.0);
 
@@ -495,6 +497,14 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                       ],
                     ),
                     const SizedBox(height: 20),
+                    _HomeHeroVisual(
+                      height: heroImageHeight,
+                      imageUrl: featured.isNotEmpty
+                          ? featured.first.imageUrl
+                          : DemoData.campaigns.first.imageUrl,
+                      onTap: widget.onRequestTap,
+                    ),
+                    const SizedBox(height: 14),
                     Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
@@ -773,7 +783,7 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
-                      height: compact ? 130 : 142,
+                      height: campaignHeight,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: DemoData.campaigns.length,
@@ -1077,14 +1087,18 @@ class _InventoryPageState extends State<InventoryPage> {
               ),
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              height: 42,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final category = categories.elementAt(index);
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFE0E6F0)),
+              ),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: categories.map((category) {
                   final selected = category == widget.selectedCategory;
                   return FilterChip(
                     selected: selected,
@@ -1096,7 +1110,7 @@ class _InventoryPageState extends State<InventoryPage> {
                     selectedColor: const Color(0x1A1E88E5),
                     checkmarkColor: const Color(0xFF1E88E5),
                   );
-                },
+                }).toList(),
               ),
             ),
             const SizedBox(height: 10),
@@ -1185,24 +1199,26 @@ class _InventoryPageState extends State<InventoryPage> {
                     );
                   }
 
-                  return GridView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.86,
+                  return Expanded(
+                    child: GridView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 1,
+                      ),
+                      itemCount: visibleParts.length,
+                      itemBuilder: (context, index) {
+                        final part = visibleParts[index];
+                        return _InventoryCard(
+                          part: part,
+                          selectedVehicle: widget.selectedVehicle,
+                          isFavorite: widget.favoritePartIds.contains(part.id),
+                          onFavoriteTap: () => widget.onToggleFavorite(part.id),
+                        );
+                      },
                     ),
-                    itemCount: visibleParts.length,
-                    itemBuilder: (context, index) {
-                      final part = visibleParts[index];
-                      return _InventoryCard(
-                        part: part,
-                        selectedVehicle: widget.selectedVehicle,
-                        isFavorite: widget.favoritePartIds.contains(part.id),
-                        onFavoriteTap: () => widget.onToggleFavorite(part.id),
-                      );
-                    },
                   );
                 },
               ),
@@ -1823,6 +1839,112 @@ class _ManagementPageState extends State<ManagementPage> {
   }
 }
 
+class _HomeHeroVisual extends StatelessWidget {
+  const _HomeHeroVisual({
+    required this.height,
+    required this.imageUrl,
+    required this.onTap,
+  });
+
+  final double height;
+  final String imageUrl;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: _NetworkPhoto(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                gradient: const LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Color(0xCF0A1F3A), Color(0x3A1565C0)],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 12,
+            left: 12,
+            bottom: 12,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'مدیریت سفارش قطعه در یک نگاه',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'جستجو، سازگاری خودرو، درخواست قیمت و پیگیری سریع',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: const Color(0xFFD8E6FA),
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                FilledButton(
+                  onPressed: onTap,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF42A5F5),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('شروع'),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 10,
+            left: 10,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              decoration: BoxDecoration(
+                color: colorWithOpacity(const Color(0xFF42A5F5), 0.24),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: colorWithOpacity(const Color(0xFF90CAF9), 0.45),
+                ),
+              ),
+              child: const Text(
+                'نسخه دمو فروشگاهی',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _CampaignCard extends StatelessWidget {
   const _CampaignCard({required this.campaign});
 
@@ -1926,6 +2048,17 @@ class _NetworkPhoto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (const bool.fromEnvironment('FLUTTER_TEST')) {
+      return Container(
+        color: const Color(0xFFEFF3F9),
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.image_outlined,
+          color: Color(0xFF8A94A8),
+        ),
+      );
+    }
+
     return Image.network(
       imageUrl,
       fit: fit,
@@ -1983,9 +2116,9 @@ class _DealCard extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compact = constraints.maxHeight < 290;
-        final imageHeight = compact ? 58.0 : 88.0;
-        final spacing = compact ? 6.0 : 10.0;
+        final compact = constraints.maxHeight < 340;
+        final imageHeight = compact ? 74.0 : 132.0;
+        final spacing = compact ? 4.0 : 9.0;
 
         return _GlassCard(
           child: Padding(
@@ -2117,8 +2250,12 @@ class _DealCard extends StatelessWidget {
                         ? FilledButton.styleFrom(
                             backgroundColor: const Color(0xFF1565C0),
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 6),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            textStyle:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
                           )
                         : FilledButton.styleFrom(
                             backgroundColor: const Color(0xFF1565C0),
