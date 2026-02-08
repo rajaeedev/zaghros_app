@@ -10,12 +10,12 @@ class ZaghrosSparePartsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const seedColor = Color(0xFFE74C3C);
+    const seedColor = Color(0xFFE30613);
 
     final baseTheme = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
-      scaffoldBackgroundColor: const Color(0xFFF4F6FA),
+      scaffoldBackgroundColor: const Color(0xFFF3F3F5),
     );
 
     return MaterialApp(
@@ -32,17 +32,46 @@ class ZaghrosSparePartsApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           centerTitle: false,
           backgroundColor: Colors.transparent,
-          foregroundColor: Color(0xFF111827),
+          foregroundColor: Color(0xFF101010),
           elevation: 0,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFFE2E4E9)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFFE2E4E9)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(
+              color: Color(0xFFE30613),
+              width: 1.4,
+            ),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+        ),
+        navigationBarTheme: const NavigationBarThemeData(
+          indicatorColor: Color(0x1AE30613),
+          backgroundColor: Colors.transparent,
+          iconTheme: WidgetStatePropertyAll(
+            IconThemeData(color: Color(0xFF1E1E1E)),
+          ),
+          labelTextStyle: WidgetStatePropertyAll(
+            TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
         textTheme: baseTheme.textTheme.copyWith(
           headlineMedium: baseTheme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF101828),
+            color: const Color(0xFF111111),
           ),
           headlineSmall: baseTheme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF101828),
+            color: const Color(0xFF111111),
           ),
           titleLarge: baseTheme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
@@ -174,24 +203,23 @@ class _DemoShellState extends State<DemoShell> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
-          margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE1E3E8)),
             boxShadow: const [
               BoxShadow(
-                color: Color(0x1A101828),
-                blurRadius: 18,
-                offset: Offset(0, 8),
+                color: Color(0x16000000),
+                blurRadius: 14,
+                offset: Offset(0, 6),
               ),
             ],
           ),
           child: NavigationBar(
             selectedIndex: _tabIndex,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            backgroundColor: Colors.transparent,
-            indicatorColor: const Color(0x1AE74C3C),
             onDestinationSelected: (index) {
               setState(() => _tabIndex = index);
             },
@@ -281,15 +309,11 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                   Row(
                     children: [
                       Container(
-                        width: 44,
-                        height: 44,
+                        width: 46,
+                        height: 46,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFE74C3C), Color(0xFFFF8A3C)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(14),
+                          color: const Color(0xFFE30613),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Icon(
                           Icons.car_repair_rounded,
@@ -309,7 +333,7 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                             Text(
                               'بازار حرفه‌ای قطعات یدکی خودرو',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: const Color(0xFF667085),
+                                color: const Color(0xFF616161),
                               ),
                             ),
                           ],
@@ -317,86 +341,133 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFF151515),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: IconButton(
                           onPressed: () {},
-                          icon: const Icon(Icons.notifications_none_rounded),
+                          icon: const Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  _GlassCard(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFE30613), Color(0xFFFF3750)],
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Stack(
                       children: [
-                        Text(
-                          'قطعه موردنیاز را در چند ثانیه پیدا کنید',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontSize: 25,
+                        Positioned(
+                          top: -22,
+                          right: -18,
+                          child: Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: colorWithOpacity(Colors.white, 0.22),
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'موجودی باکیفیت، مشاهده زنده انبار و ارسال فوری درخواست برای قطعات کمیاب.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: const Color(0xFF475467),
-                            height: 1.5,
+                        Positioned(
+                          bottom: -28,
+                          left: -14,
+                          child: Container(
+                            width: 92,
+                            height: 92,
+                            decoration: BoxDecoration(
+                              color: colorWithOpacity(Colors.white, 0.22),
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: _searchController,
-                          textInputAction: TextInputAction.search,
-                          onSubmitted: widget.onSearchSubmitted,
-                          decoration: InputDecoration(
-                            hintText:
-                                'جستجو بر اساس نام قطعه، برند، کد کالا یا مدل خودرو',
-                            prefixIcon: const Icon(Icons.search_rounded),
-                            suffixIcon: IconButton(
-                              onPressed: () => widget.onSearchSubmitted(
-                                _searchController.text.trim(),
-                              ),
-                              icon: const Icon(Icons.arrow_forward_rounded),
+                        Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(26),
                             ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: BorderSide.none,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'طراحی سریع سفارش قطعه',
+                                  style:
+                                      theme.textTheme.headlineSmall?.copyWith(
+                                    fontSize: 23,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'مثل اپ‌های بازار ایران، سریع جستجو کنید، موجودی ببینید و همان لحظه درخواست ثبت کنید.',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: const Color(0xFF525252),
+                                    height: 1.45,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                TextField(
+                                  controller: _searchController,
+                                  textInputAction: TextInputAction.search,
+                                  onSubmitted: widget.onSearchSubmitted,
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'نام قطعه، برند یا کد فنی را وارد کنید',
+                                    prefixIcon:
+                                        const Icon(Icons.search_rounded),
+                                    suffixIcon: IconButton(
+                                      onPressed: () => widget.onSearchSubmitted(
+                                        _searchController.text.trim(),
+                                      ),
+                                      icon: const Icon(
+                                        Icons.tune_rounded,
+                                        color: Color(0xFFE30613),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _StatCard(
+                                        value: '${widget.inventory.length}+ ',
+                                        label: 'کالاهای فعال',
+                                        color: const Color(0xFFE30613),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: _StatCard(
+                                        value: '$totalStock',
+                                        label: 'موجودی کل',
+                                        color: const Color(0xFF202020),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: _StatCard(
+                                        value: '$pendingRequests',
+                                        label: 'درخواست باز',
+                                        color: const Color(0xFF8F1D24),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            filled: true,
-                            fillColor: const Color(0xFFF8FAFC),
                           ),
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _StatCard(
-                                value: '${widget.inventory.length}+ ',
-                                label: 'کالاهای فعال',
-                                color: const Color(0xFFE74C3C),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _StatCard(
-                                value: '$totalStock',
-                                label: 'تعداد موجودی',
-                                color: const Color(0xFF0EA5E9),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _StatCard(
-                                value: '$pendingRequests',
-                                label: 'درخواست‌های باز',
-                                color: const Color(0xFFF59E0B),
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
@@ -423,27 +494,22 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                             width: 110,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
-                              gradient: LinearGradient(
-                                colors: [
-                                  colorWithOpacity(category.color, 0.18),
-                                  Colors.white,
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
+                              color: Colors.white,
                               border: Border.all(
-                                color: colorWithOpacity(category.color, 0.35),
+                                color: const Color(0xFFE5E7EC),
                               ),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(category.icon, color: category.color),
+                                Icon(category.icon,
+                                    color: const Color(0xFF1D1D1D)),
                                 const SizedBox(height: 8),
                                 Text(
                                   category.name,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF1D1D1D),
                                   ),
                                 ),
                               ],
@@ -1355,20 +1421,21 @@ class _DealCard extends StatelessWidget {
                   height: imageHeight,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [
-                        colorWithOpacity(part.categoryColor, 0.20),
-                        Colors.white,
+                        Color(0x1AE30613),
+                        Color(0xFFF8F8FA),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),
                     borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE6E8ED)),
                   ),
                   child: Icon(
                     Icons.precision_manufacturing_rounded,
                     size: compact ? 30 : 38,
-                    color: part.categoryColor,
+                    color: const Color(0xFF1E1E1E),
                   ),
                 ),
                 SizedBox(height: spacing),
@@ -1409,14 +1476,19 @@ class _DealCard extends StatelessWidget {
                 SizedBox(height: compact ? 4 : 8),
                 SizedBox(
                   width: double.infinity,
-                  child: OutlinedButton(
+                  child: FilledButton(
                     onPressed: onView,
                     style: compact
-                        ? OutlinedButton.styleFrom(
+                        ? FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFE30613),
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           )
-                        : null,
+                        : FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFE30613),
+                            foregroundColor: Colors.white,
+                          ),
                     child: Text(compact ? 'جزئیات' : 'مشاهده جزئیات'),
                   ),
                 ),
@@ -1487,16 +1559,17 @@ class _InventoryCard extends StatelessWidget {
               height: 78,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [
-                    colorWithOpacity(part.categoryColor, 0.25),
-                    Colors.white,
+                    Color(0x16E30613),
+                    Color(0xFFF8F8FA),
                   ],
                 ),
+                border: Border.all(color: const Color(0xFFE6E8ED)),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.build_circle_outlined,
-                color: part.categoryColor,
+                color: Color(0xFF242424),
                 size: 34,
               ),
             ),
@@ -1742,8 +1815,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFF8F8FA),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE3E6EC)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1798,11 +1872,12 @@ class _MetricCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE5E7EC)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x110F172A),
-            blurRadius: 10,
-            offset: Offset(0, 6),
+            color: Color(0x10000000),
+            blurRadius: 8,
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -1858,9 +1933,14 @@ class _SectionHeader extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const Spacer(),
-        TextButton(
+        TextButton.icon(
           onPressed: onTap,
-          child: Text(actionLabel),
+          icon: const Icon(Icons.chevron_left_rounded, size: 18),
+          label: Text(actionLabel),
+          style: TextButton.styleFrom(
+            foregroundColor: const Color(0xFFE30613),
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          ),
         ),
       ],
     );
@@ -1932,14 +2012,14 @@ class _GlassCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: gradient,
-        color: gradient == null ? colorWithOpacity(Colors.white, 0.92) : null,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: colorWithOpacity(Colors.white, 0.8)),
+        color: gradient == null ? Colors.white : null,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE6E8ED)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x140F172A),
-            blurRadius: 18,
-            offset: Offset(0, 8),
+            color: Color(0x11000000),
+            blurRadius: 12,
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -1958,29 +2038,23 @@ class _AmbientBackground extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFFF3F4F8), Color(0xFFEDEFF5)],
-                ),
-              ),
+              color: const Color(0xFFF2F2F4),
             ),
           ),
           Positioned(
-            top: -110,
-            right: -80,
-            child: _ambientBlob(const Color(0x1AE74C3C), 260),
+            top: -155,
+            left: -95,
+            child: _ambientBlob(const Color(0x1FE30613), 300),
           ),
           Positioned(
-            top: 120,
-            left: -90,
-            child: _ambientBlob(const Color(0x1A0EA5E9), 220),
+            bottom: -195,
+            right: -130,
+            child: _ambientBlob(const Color(0x22E30613), 360),
           ),
           Positioned(
-            bottom: -120,
+            top: 220,
             right: -100,
-            child: _ambientBlob(const Color(0x1AF59E0B), 260),
+            child: _ambientBlob(const Color(0x0E000000), 200),
           ),
         ],
       ),
