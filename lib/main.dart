@@ -159,6 +159,9 @@ class _DemoShellState extends State<DemoShell> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final compactNav = screenWidth < 370;
+
     final pages = <Widget>[
       HomeLandingPage(
         inventory: _inventory,
@@ -203,8 +206,16 @@ class _DemoShellState extends State<DemoShell> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
-          margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          margin: EdgeInsets.fromLTRB(
+            compactNav ? 6 : 10,
+            0,
+            compactNav ? 6 : 10,
+            compactNav ? 8 : 10,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: compactNav ? 4 : 8,
+            vertical: compactNav ? 2 : 4,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(18),
@@ -219,7 +230,9 @@ class _DemoShellState extends State<DemoShell> {
           ),
           child: NavigationBar(
             selectedIndex: _tabIndex,
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            labelBehavior: compactNav
+                ? NavigationDestinationLabelBehavior.onlyShowSelected
+                : NavigationDestinationLabelBehavior.alwaysShow,
             onDestinationSelected: (index) {
               setState(() => _tabIndex = index);
             },
@@ -288,6 +301,14 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final width = MediaQuery.sizeOf(context).width;
+    final compact = width < 390;
+    final tablet = width >= 720;
+    final pageHorizontalPadding = tablet ? 28.0 : (compact ? 12.0 : 18.0);
+    final dealCardHeight = tablet ? 280.0 : (compact ? 236.0 : 258.0);
+    final dealCardWidth = tablet ? 235.0 : (compact ? 176.0 : 205.0);
+    final categoryCardWidth = tablet ? 126.0 : (compact ? 100.0 : 110.0);
+
     const categories = DemoData.categories;
     final featured = widget.inventory.where((part) => part.featured).toList();
     final totalStock =
@@ -302,7 +323,12 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 120),
+              padding: EdgeInsets.fromLTRB(
+                pageHorizontalPadding,
+                18,
+                pageHorizontalPadding,
+                120,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -405,7 +431,7 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                                   'طراحی سریع سفارش قطعه',
                                   style:
                                       theme.textTheme.headlineSmall?.copyWith(
-                                    fontSize: 23,
+                                    fontSize: compact ? 20 : 23,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -438,30 +464,66 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 14),
-                                Row(
+                                LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final perRow =
+                                        constraints.maxWidth < 380 ? 2 : 3;
+                                    final cardWidth = (constraints.maxWidth -
+                                            ((perRow - 1) * 8)) /
+                                        perRow;
+
+                                    return Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: [
+                                        SizedBox(
+                                          width: cardWidth,
+                                          child: _StatCard(
+                                            value:
+                                                '${widget.inventory.length}+ ',
+                                            label: 'کالاهای فعال',
+                                            color: const Color(0xFFE30613),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: cardWidth,
+                                          child: _StatCard(
+                                            value: '$totalStock',
+                                            label: 'موجودی کل',
+                                            color: const Color(0xFF1F4D96),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: cardWidth,
+                                          child: _StatCard(
+                                            value: '$pendingRequests',
+                                            label: 'درخواست باز',
+                                            color: const Color(0xFF8F1D24),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                const Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
                                   children: [
-                                    Expanded(
-                                      child: _StatCard(
-                                        value: '${widget.inventory.length}+ ',
-                                        label: 'کالاهای فعال',
-                                        color: const Color(0xFFE30613),
-                                      ),
+                                    _QuickBadge(
+                                      icon: Icons.verified_user_rounded,
+                                      text: 'تضمین اصالت',
+                                      color: Color(0xFF1B9C6B),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: _StatCard(
-                                        value: '$totalStock',
-                                        label: 'موجودی کل',
-                                        color: const Color(0xFF202020),
-                                      ),
+                                    _QuickBadge(
+                                      icon: Icons.local_shipping_rounded,
+                                      text: 'ارسال سریع',
+                                      color: Color(0xFF1F4D96),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: _StatCard(
-                                        value: '$pendingRequests',
-                                        label: 'درخواست باز',
-                                        color: const Color(0xFF8F1D24),
-                                      ),
+                                    _QuickBadge(
+                                      icon: Icons.headset_mic_rounded,
+                                      text: 'پشتیبانی فعال',
+                                      color: Color(0xFFE30613),
                                     ),
                                   ],
                                 ),
@@ -491,19 +553,18 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                           onTap: () => widget.onCategoryTap(category.name),
                           borderRadius: BorderRadius.circular(16),
                           child: Ink(
-                            width: 110,
+                            width: categoryCardWidth,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
-                              color: Colors.white,
+                              color: colorWithOpacity(category.color, 0.11),
                               border: Border.all(
-                                color: const Color(0xFFE5E7EC),
+                                color: colorWithOpacity(category.color, 0.3),
                               ),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(category.icon,
-                                    color: const Color(0xFF1D1D1D)),
+                                Icon(category.icon, color: category.color),
                                 const SizedBox(height: 8),
                                 Text(
                                   category.name,
@@ -527,7 +588,7 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
-                    height: 258,
+                    height: dealCardHeight,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: featured.length,
@@ -535,7 +596,7 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                       itemBuilder: (context, index) {
                         final part = featured[index];
                         return SizedBox(
-                          width: 205,
+                          width: dealCardWidth,
                           child: _DealCard(
                             part: part,
                             isFavorite:
@@ -550,7 +611,7 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
                   const SizedBox(height: 26),
                   _GlassCard(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF111827), Color(0xFF1D2939)],
+                      colors: [Color(0xFF202434), Color(0xFF303A58)],
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(18),
@@ -653,6 +714,9 @@ class _InventoryPageState extends State<InventoryPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final compact = screenWidth < 390;
+    final tablet = screenWidth >= 720;
     final categories = <String>{'همه'}
       ..addAll(widget.inventory.map((part) => part.category));
 
@@ -683,7 +747,12 @@ class _InventoryPageState extends State<InventoryPage> {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+        padding: EdgeInsets.fromLTRB(
+          tablet ? 28 : (compact ? 12 : 16),
+          12,
+          tablet ? 28 : (compact ? 12 : 16),
+          120,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -743,14 +812,10 @@ class _InventoryPageState extends State<InventoryPage> {
               ),
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Text(
-                  '${toPersianDigits(visibleParts.length)} کالا یافت شد',
-                  style: theme.textTheme.titleMedium,
-                ),
-                const Spacer(),
-                PopupMenuButton<SortMode>(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final stacked = constraints.maxWidth < 420;
+                final sortButton = PopupMenuButton<SortMode>(
                   initialValue: _sortMode,
                   onSelected: (value) => setState(() => _sortMode = value),
                   itemBuilder: (context) => SortMode.values
@@ -765,10 +830,14 @@ class _InventoryPageState extends State<InventoryPage> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorWithOpacity(const Color(0xFF1F4D96), 0.09),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: colorWithOpacity(const Color(0xFF1F4D96), 0.25),
+                      ),
                     ),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.swap_vert_rounded, size: 18),
                         const SizedBox(width: 6),
@@ -776,8 +845,33 @@ class _InventoryPageState extends State<InventoryPage> {
                       ],
                     ),
                   ),
-                ),
-              ],
+                );
+
+                if (stacked) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${toPersianDigits(visibleParts.length)} کالا یافت شد',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      sortButton,
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Text(
+                      '${toPersianDigits(visibleParts.length)} کالا یافت شد',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const Spacer(),
+                    sortButton,
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -914,12 +1008,20 @@ class _RequestPartPageState extends State<RequestPartPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final compact = screenWidth < 390;
+    final tablet = screenWidth >= 720;
     final recent = widget.recentRequests.take(3).toList();
 
     return SafeArea(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 120),
+        padding: EdgeInsets.fromLTRB(
+          tablet ? 28 : (compact ? 12 : 16),
+          14,
+          tablet ? 28 : (compact ? 12 : 16),
+          120,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
@@ -976,71 +1078,87 @@ class _RequestPartPageState extends State<RequestPartPage> {
                       required: false,
                     ),
                     const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<UrgencyLevel>(
-                            value: _urgency,
-                            decoration: const InputDecoration(
-                              labelText: 'اولویت',
-                              prefixIcon: Icon(Icons.priority_high_rounded),
-                              filled: true,
-                              fillColor: Color(0xFFF8FAFC),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            items: UrgencyLevel.values
-                                .map(
-                                  (level) => DropdownMenuItem(
-                                    value: level,
-                                    child: Text(level.label),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              if (value == null) {
-                                return;
-                              }
-                              setState(() => _urgency = value);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'تعداد',
-                              filled: true,
-                              fillColor: Color(0xFFF8FAFC),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  onPressed: _quantity > 1
-                                      ? () => setState(() => _quantity -= 1)
-                                      : null,
-                                  icon: const Icon(Icons.remove_circle_outline),
-                                ),
-                                Text(
-                                  toPersianDigits(_quantity),
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                IconButton(
-                                  onPressed: _quantity < 99
-                                      ? () => setState(() => _quantity += 1)
-                                      : null,
-                                  icon: const Icon(Icons.add_circle_outline),
-                                ),
-                              ],
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final vertical = constraints.maxWidth < 430;
+                        final urgencyField =
+                            DropdownButtonFormField<UrgencyLevel>(
+                          value: _urgency,
+                          decoration: const InputDecoration(
+                            labelText: 'اولویت',
+                            prefixIcon: Icon(Icons.priority_high_rounded),
+                            filled: true,
+                            fillColor: Color(0xFFF8FAFC),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
                             ),
                           ),
-                        ),
-                      ],
+                          items: UrgencyLevel.values
+                              .map(
+                                (level) => DropdownMenuItem(
+                                  value: level,
+                                  child: Text(level.label),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value == null) {
+                              return;
+                            }
+                            setState(() => _urgency = value);
+                          },
+                        );
+
+                        final quantityField = InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'تعداد',
+                            filled: true,
+                            fillColor: Color(0xFFF8FAFC),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                onPressed: _quantity > 1
+                                    ? () => setState(() => _quantity -= 1)
+                                    : null,
+                                icon: const Icon(Icons.remove_circle_outline),
+                              ),
+                              Text(
+                                toPersianDigits(_quantity),
+                                style: theme.textTheme.titleMedium,
+                              ),
+                              IconButton(
+                                onPressed: _quantity < 99
+                                    ? () => setState(() => _quantity += 1)
+                                    : null,
+                                icon: const Icon(Icons.add_circle_outline),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (vertical) {
+                          return Column(
+                            children: [
+                              urgencyField,
+                              const SizedBox(height: 10),
+                              quantityField,
+                            ],
+                          );
+                        }
+
+                        return Row(
+                          children: [
+                            Expanded(child: urgencyField),
+                            const SizedBox(width: 12),
+                            Expanded(child: quantityField),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -1065,7 +1183,7 @@ class _RequestPartPageState extends State<RequestPartPage> {
                         onPressed: _submitRequest,
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: const Color(0xFFE74C3C),
+                          backgroundColor: const Color(0xFFE30613),
                           foregroundColor: Colors.white,
                         ),
                         icon: const Icon(Icons.send_rounded),
@@ -1151,6 +1269,9 @@ class _ManagementPageState extends State<ManagementPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final compact = screenWidth < 390;
+    final tablet = screenWidth >= 720;
     final lowStockItems =
         widget.inventory.where((part) => part.stock <= 4).toList();
     final visibleRequests = _statusFilter == null
@@ -1172,7 +1293,12 @@ class _ManagementPageState extends State<ManagementPage> {
     return SafeArea(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 120),
+        padding: EdgeInsets.fromLTRB(
+          tablet ? 28 : (compact ? 12 : 16),
+          14,
+          tablet ? 28 : (compact ? 12 : 16),
+          120,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1185,35 +1311,48 @@ class _ManagementPageState extends State<ManagementPage> {
               ),
             ),
             const SizedBox(height: 14),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                _MetricCard(
-                  label: 'کل کالاها',
-                  value: '${widget.inventory.length}',
-                  icon: Icons.category_rounded,
-                  color: const Color(0xFF0EA5E9),
-                ),
-                _MetricCard(
-                  label: 'در انتظار',
-                  value: '$pending',
-                  icon: Icons.hourglass_bottom_rounded,
-                  color: const Color(0xFFF59E0B),
-                ),
-                _MetricCard(
-                  label: 'پیش‌فاکتور آماده',
-                  value: '$quoteReady',
-                  icon: Icons.request_quote_rounded,
-                  color: const Color(0xFFE74C3C),
-                ),
-                _MetricCard(
-                  label: 'تحویل‌شده',
-                  value: '$delivered',
-                  icon: Icons.local_shipping_rounded,
-                  color: const Color(0xFF22C55E),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final wide = constraints.maxWidth >= 720;
+                final cardWidth = wide
+                    ? (constraints.maxWidth - 12) / 2
+                    : constraints.maxWidth;
+
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    _MetricCard(
+                      width: cardWidth,
+                      label: 'کل کالاها',
+                      value: '${widget.inventory.length}',
+                      icon: Icons.category_rounded,
+                      color: const Color(0xFF1F4D96),
+                    ),
+                    _MetricCard(
+                      width: cardWidth,
+                      label: 'در انتظار',
+                      value: '$pending',
+                      icon: Icons.hourglass_bottom_rounded,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                    _MetricCard(
+                      width: cardWidth,
+                      label: 'پیش‌فاکتور آماده',
+                      value: '$quoteReady',
+                      icon: Icons.request_quote_rounded,
+                      color: const Color(0xFFE30613),
+                    ),
+                    _MetricCard(
+                      width: cardWidth,
+                      label: 'تحویل‌شده',
+                      value: '$delivered',
+                      icon: Icons.local_shipping_rounded,
+                      color: const Color(0xFF22C55E),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 18),
             _GlassCard(
@@ -1310,34 +1449,78 @@ class _ManagementPageState extends State<ManagementPage> {
                     ...lowStockItems.map(
                       (part) => Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF4F2),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFFFECACA),
-                            ),
-                          ),
-                          child: ListTile(
-                            leading: const CircleAvatar(
-                              backgroundColor: Color(0x1AE74C3C),
-                              child: Icon(
-                                Icons.warning_amber_rounded,
-                                color: Color(0xFFE74C3C),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final small = constraints.maxWidth < 430;
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF4F2),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFFFECACA),
+                                ),
                               ),
-                            ),
-                            title: Text(part.name),
-                            subtitle: Text(
-                                '${toPersianDigits(part.stock)} عدد باقی‌مانده • ${part.warehouse}'),
-                            trailing: FilledButton(
-                              onPressed: () {},
-                              style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFFE74C3C),
-                                foregroundColor: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const CircleAvatar(
+                                          backgroundColor: Color(0x1AE74C3C),
+                                          child: Icon(
+                                            Icons.warning_amber_rounded,
+                                            color: Color(0xFFE74C3C),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(part.name),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                '${toPersianDigits(part.stock)} عدد باقی‌مانده • ${part.warehouse}',
+                                                style:
+                                                    theme.textTheme.bodySmall,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (!small)
+                                          FilledButton(
+                                            onPressed: () {},
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color(0xFFE30613),
+                                              foregroundColor: Colors.white,
+                                            ),
+                                            child: const Text('شارژ موجودی'),
+                                          ),
+                                      ],
+                                    ),
+                                    if (small) ...[
+                                      const SizedBox(height: 10),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: FilledButton(
+                                          onPressed: () {},
+                                          style: FilledButton.styleFrom(
+                                            backgroundColor:
+                                                const Color(0xFFE30613),
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          child: const Text('شارژ موجودی'),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ),
-                              child: const Text('شارژ موجودی'),
-                            ),
-                          ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -1815,7 +1998,14 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8FA),
+        gradient: LinearGradient(
+          colors: [
+            colorWithOpacity(color, 0.11),
+            const Color(0xFFF8F8FA),
+          ],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE3E6EC)),
       ),
@@ -1851,23 +2041,64 @@ class _StatCard extends StatelessWidget {
   }
 }
 
+class _QuickBadge extends StatelessWidget {
+  const _QuickBadge({
+    required this.icon,
+    required this.text,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorWithOpacity(color, 0.11),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: colorWithOpacity(color, 0.28)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _MetricCard extends StatelessWidget {
   const _MetricCard({
     required this.label,
     required this.value,
     required this.icon,
     required this.color,
+    this.width,
   });
 
   final String label;
   final String value;
   final IconData icon;
   final Color color;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
+      width: width ?? 160,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -2052,9 +2283,19 @@ class _AmbientBackground extends StatelessWidget {
             child: _ambientBlob(const Color(0x22E30613), 360),
           ),
           Positioned(
+            top: 95,
+            right: -70,
+            child: _ambientBlob(const Color(0x141F4D96), 180),
+          ),
+          Positioned(
             top: 220,
             right: -100,
             child: _ambientBlob(const Color(0x0E000000), 200),
+          ),
+          Positioned(
+            bottom: 160,
+            left: -48,
+            child: _ambientBlob(const Color(0x14F59E0B), 120),
           ),
         ],
       ),
