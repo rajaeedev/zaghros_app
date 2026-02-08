@@ -10,7 +10,7 @@ class ZaghrosSparePartsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const seedColor = Color(0xFFE30613);
+    const seedColor = Color(0xFF1565C0);
 
     final baseTheme = ThemeData(
       useMaterial3: true,
@@ -37,17 +37,17 @@ class ZaghrosSparePartsApp extends StatelessWidget {
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: Color(0xFFE2E4E9)),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: Color(0xFFE2E4E9)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(
-              color: Color(0xFFE30613),
+              color: Color(0xFF1565C0),
               width: 1.4,
             ),
           ),
@@ -55,14 +55,8 @@ class ZaghrosSparePartsApp extends StatelessWidget {
           fillColor: Colors.white,
         ),
         navigationBarTheme: const NavigationBarThemeData(
-          indicatorColor: Color(0x1AE30613),
+          indicatorColor: Color(0x1A1565C0),
           backgroundColor: Colors.transparent,
-          iconTheme: WidgetStatePropertyAll(
-            IconThemeData(color: Color(0xFF1E1E1E)),
-          ),
-          labelTextStyle: WidgetStatePropertyAll(
-            TextStyle(fontWeight: FontWeight.w600),
-          ),
         ),
         textTheme: baseTheme.textTheme.copyWith(
           headlineMedium: baseTheme.textTheme.headlineMedium?.copyWith(
@@ -93,14 +87,37 @@ class DemoShell extends StatefulWidget {
   State<DemoShell> createState() => _DemoShellState();
 }
 
+class _DestinationItem {
+  const _DestinationItem({
+    required this.label,
+    required this.icon,
+    required this.selectedIcon,
+  });
+
+  final String label;
+  final IconData icon;
+  final IconData selectedIcon;
+}
+
 class _DemoShellState extends State<DemoShell> {
   final List<SparePart> _inventory = List.of(DemoData.parts);
   final List<PartRequest> _requests = List.of(DemoData.requests);
   final Set<int> _favoritePartIds = <int>{};
+  final List<String> _garageVehicles = const [
+    'همه خودروها',
+    'پژو 206 تیپ 2',
+    'سمند EF7',
+    'پراید 111',
+    'دنا پلاس',
+    'شاهین G',
+    'کوییک R',
+    'جک S5',
+  ];
 
   int _tabIndex = 0;
   String _inventoryCategory = 'همه';
   String _inventorySearch = '';
+  String _selectedVehicle = 'همه خودروها';
 
   void _switchToInventory({String? category, String? query}) {
     setState(() {
@@ -112,6 +129,10 @@ class _DemoShellState extends State<DemoShell> {
 
   void _switchToRequest() {
     setState(() => _tabIndex = 2);
+  }
+
+  void _setSelectedVehicle(String vehicle) {
+    setState(() => _selectedVehicle = vehicle);
   }
 
   void _toggleFavorite(int partId) {
@@ -159,14 +180,42 @@ class _DemoShellState extends State<DemoShell> {
 
   @override
   Widget build(BuildContext context) {
+    const destinations = <_DestinationItem>[
+      _DestinationItem(
+        label: 'خانه',
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home_rounded,
+      ),
+      _DestinationItem(
+        label: 'انبار',
+        icon: Icons.inventory_2_outlined,
+        selectedIcon: Icons.inventory_2_rounded,
+      ),
+      _DestinationItem(
+        label: 'درخواست',
+        icon: Icons.request_page_outlined,
+        selectedIcon: Icons.request_page_rounded,
+      ),
+      _DestinationItem(
+        label: 'مدیریت',
+        icon: Icons.dashboard_customize_outlined,
+        selectedIcon: Icons.dashboard_customize_rounded,
+      ),
+    ];
+
     final screenWidth = MediaQuery.sizeOf(context).width;
     final compactNav = screenWidth < 370;
+    final useRail = screenWidth >= 900;
+    final railExtended = screenWidth >= 1220;
 
     final pages = <Widget>[
       HomeLandingPage(
         inventory: _inventory,
         requests: _requests,
         favoritePartIds: _favoritePartIds,
+        selectedVehicle: _selectedVehicle,
+        garageVehicles: _garageVehicles,
+        onVehicleChanged: _setSelectedVehicle,
         onCategoryTap: (category) => _switchToInventory(category: category),
         onSearchSubmitted: (query) => _switchToInventory(query: query),
         onRequestTap: _switchToRequest,
@@ -176,7 +225,10 @@ class _DemoShellState extends State<DemoShell> {
         inventory: _inventory,
         selectedCategory: _inventoryCategory,
         searchQuery: _inventorySearch,
+        selectedVehicle: _selectedVehicle,
+        garageVehicles: _garageVehicles,
         favoritePartIds: _favoritePartIds,
+        onVehicleChanged: _setSelectedVehicle,
         onCategoryChanged: (category) {
           setState(() => _inventoryCategory = category);
         },
@@ -196,13 +248,74 @@ class _DemoShellState extends State<DemoShell> {
       ),
     ];
 
+    final content = Stack(
+      children: [
+        const _AmbientBackground(),
+        IndexedStack(index: _tabIndex, children: pages),
+      ],
+    );
+
+    if (useRail) {
+      return Scaffold(
+        body: Stack(
+          children: [
+            const _AmbientBackground(),
+            SafeArea(
+              child: Row(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE1E3E8)),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x12000000),
+                          blurRadius: 14,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: NavigationRail(
+                      selectedIndex: _tabIndex,
+                      extended: railExtended,
+                      backgroundColor: Colors.transparent,
+                      indicatorColor: const Color(0x1A1565C0),
+                      labelType: railExtended
+                          ? NavigationRailLabelType.none
+                          : NavigationRailLabelType.all,
+                      onDestinationSelected: (index) {
+                        setState(() => _tabIndex = index);
+                      },
+                      destinations: destinations
+                          .map(
+                            (item) => NavigationRailDestination(
+                              icon: Icon(item.icon),
+                              selectedIcon: Icon(item.selectedIcon),
+                              label: Text(item.label),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                      child: IndexedStack(index: _tabIndex, children: pages)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
-      body: Stack(
-        children: [
-          const _AmbientBackground(),
-          IndexedStack(index: _tabIndex, children: pages),
-        ],
-      ),
+      body: content,
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
@@ -218,7 +331,7 @@ class _DemoShellState extends State<DemoShell> {
           ),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(color: const Color(0xFFE1E3E8)),
             boxShadow: const [
               BoxShadow(
@@ -236,28 +349,15 @@ class _DemoShellState extends State<DemoShell> {
             onDestinationSelected: (index) {
               setState(() => _tabIndex = index);
             },
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home_rounded),
-                label: 'خانه',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.inventory_2_outlined),
-                selectedIcon: Icon(Icons.inventory_2_rounded),
-                label: 'انبار',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.request_page_outlined),
-                selectedIcon: Icon(Icons.request_page_rounded),
-                label: 'درخواست',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.dashboard_customize_outlined),
-                selectedIcon: Icon(Icons.dashboard_customize_rounded),
-                label: 'مدیریت',
-              ),
-            ],
+            destinations: destinations
+                .map(
+                  (item) => NavigationDestination(
+                    icon: Icon(item.icon),
+                    selectedIcon: Icon(item.selectedIcon),
+                    label: item.label,
+                  ),
+                )
+                .toList(),
           ),
         ),
       ),
@@ -270,6 +370,9 @@ class HomeLandingPage extends StatefulWidget {
     required this.inventory,
     required this.requests,
     required this.favoritePartIds,
+    required this.selectedVehicle,
+    required this.garageVehicles,
+    required this.onVehicleChanged,
     required this.onCategoryTap,
     required this.onSearchSubmitted,
     required this.onRequestTap,
@@ -280,6 +383,9 @@ class HomeLandingPage extends StatefulWidget {
   final List<SparePart> inventory;
   final List<PartRequest> requests;
   final Set<int> favoritePartIds;
+  final String selectedVehicle;
+  final List<String> garageVehicles;
+  final ValueChanged<String> onVehicleChanged;
   final ValueChanged<String> onCategoryTap;
   final ValueChanged<String> onSearchSubmitted;
   final VoidCallback onRequestTap;
@@ -291,6 +397,10 @@ class HomeLandingPage extends StatefulWidget {
 
 class _HomeLandingPageState extends State<HomeLandingPage> {
   final TextEditingController _searchController = TextEditingController();
+
+  Future<void> _onRefresh() async {
+    await Future<void>.delayed(const Duration(milliseconds: 900));
+  }
 
   @override
   void dispose() {
@@ -318,342 +428,443 @@ class _HomeLandingPageState extends State<HomeLandingPage> {
         .length;
 
     return SafeArea(
-      child: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                pageHorizontalPadding,
-                18,
-                pageHorizontalPadding,
-                120,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE30613),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.car_repair_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'هاب قطعات زاگرس',
-                              style: theme.textTheme.titleLarge,
-                            ),
-                            Text(
-                              'بازار حرفه‌ای قطعات یدکی خودرو',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: const Color(0xFF616161),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF151515),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.arrow_forward_rounded,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFE30613), Color(0xFFFF3750)],
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                      ),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Stack(
+      child: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  pageHorizontalPadding,
+                  18,
+                  pageHorizontalPadding,
+                  120,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Positioned(
-                          top: -22,
-                          right: -18,
-                          child: Container(
-                            width: 70,
-                            height: 70,
-                            decoration: BoxDecoration(
-                              color: colorWithOpacity(Colors.white, 0.22),
-                              shape: BoxShape.circle,
-                            ),
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1565C0),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.car_repair_rounded,
+                            color: Colors.white,
+                            size: 24,
                           ),
                         ),
-                        Positioned(
-                          bottom: -28,
-                          left: -14,
-                          child: Container(
-                            width: 92,
-                            height: 92,
-                            decoration: BoxDecoration(
-                              color: colorWithOpacity(Colors.white, 0.22),
-                              shape: BoxShape.circle,
-                            ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'هاب قطعات زاگرس',
+                                style: theme.textTheme.titleLarge,
+                              ),
+                              Text(
+                                'بازار حرفه‌ای قطعات یدکی خودرو',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: const Color(0xFF616161),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-                            decoration: BoxDecoration(
+                        Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF151515),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.arrow_forward_rounded,
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(26),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'طراحی سریع سفارش قطعه',
-                                  style:
-                                      theme.textTheme.headlineSmall?.copyWith(
-                                    fontSize: compact ? 20 : 23,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'مثل اپ‌های بازار ایران، سریع جستجو کنید، موجودی ببینید و همان لحظه درخواست ثبت کنید.',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: const Color(0xFF525252),
-                                    height: 1.45,
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                TextField(
-                                  controller: _searchController,
-                                  textInputAction: TextInputAction.search,
-                                  onSubmitted: widget.onSearchSubmitted,
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        'نام قطعه، برند یا کد فنی را وارد کنید',
-                                    prefixIcon:
-                                        const Icon(Icons.search_rounded),
-                                    suffixIcon: IconButton(
-                                      onPressed: () => widget.onSearchSubmitted(
-                                        _searchController.text.trim(),
-                                      ),
-                                      icon: const Icon(
-                                        Icons.tune_rounded,
-                                        color: Color(0xFFE30613),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    final perRow =
-                                        constraints.maxWidth < 380 ? 2 : 3;
-                                    final cardWidth = (constraints.maxWidth -
-                                            ((perRow - 1) * 8)) /
-                                        perRow;
-
-                                    return Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: [
-                                        SizedBox(
-                                          width: cardWidth,
-                                          child: _StatCard(
-                                            value:
-                                                '${widget.inventory.length}+ ',
-                                            label: 'کالاهای فعال',
-                                            color: const Color(0xFFE30613),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: cardWidth,
-                                          child: _StatCard(
-                                            value: '$totalStock',
-                                            label: 'موجودی کل',
-                                            color: const Color(0xFF1F4D96),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: cardWidth,
-                                          child: _StatCard(
-                                            value: '$pendingRequests',
-                                            label: 'درخواست باز',
-                                            color: const Color(0xFF8F1D24),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                const Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: [
-                                    _QuickBadge(
-                                      icon: Icons.verified_user_rounded,
-                                      text: 'تضمین اصالت',
-                                      color: Color(0xFF1B9C6B),
-                                    ),
-                                    _QuickBadge(
-                                      icon: Icons.local_shipping_rounded,
-                                      text: 'ارسال سریع',
-                                      color: Color(0xFF1F4D96),
-                                    ),
-                                    _QuickBadge(
-                                      icon: Icons.headset_mic_rounded,
-                                      text: 'پشتیبانی فعال',
-                                      color: Color(0xFFE30613),
-                                    ),
-                                  ],
-                                ),
-                              ],
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  _SectionHeader(
-                    title: 'دسته‌بندی‌های برتر',
-                    actionLabel: 'مشاهده انبار',
-                    onTap: () => widget.onCategoryTap('همه'),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 114,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: categories.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        return InkWell(
-                          onTap: () => widget.onCategoryTap(category.name),
-                          borderRadius: BorderRadius.circular(16),
-                          child: Ink(
-                            width: categoryCardWidth,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color: colorWithOpacity(category.color, 0.11),
-                              border: Border.all(
-                                color: colorWithOpacity(category.color, 0.3),
-                              ),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(category.icon, color: category.color),
-                                const SizedBox(height: 8),
-                                Text(
-                                  category.name,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF1D1D1D),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 26),
-                  _SectionHeader(
-                    title: 'پیشنهادهای ویژه',
-                    actionLabel: 'مشاهده همه',
-                    onTap: () => widget.onCategoryTap('همه'),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: dealCardHeight,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: featured.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 14),
-                      itemBuilder: (context, index) {
-                        final part = featured[index];
-                        return SizedBox(
-                          width: dealCardWidth,
-                          child: _DealCard(
-                            part: part,
-                            isFavorite:
-                                widget.favoritePartIds.contains(part.id),
-                            onFavorite: () => widget.onToggleFavorite(part.id),
-                            onView: () => widget.onSearchSubmitted(part.name),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 26),
-                  _GlassCard(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF202434), Color(0xFF303A58)],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Stack(
                         children: [
-                          Text(
-                            'به قطعه دقیق نیاز دارید؟',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'فرم درخواست را با VIN و مشخصات خودرو ثبت کنید تا قیمت و موجودی را سریع دریافت کنید.',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFFD0D5DD),
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          FilledButton.icon(
-                            onPressed: widget.onRequestTap,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: const Color(0xFFE74C3C),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 12,
+                          Positioned(
+                            top: -22,
+                            right: -18,
+                            child: Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                color: colorWithOpacity(Colors.white, 0.22),
+                                shape: BoxShape.circle,
                               ),
                             ),
-                            icon: const Icon(Icons.playlist_add_check_rounded),
-                            label: const Text('باز کردن فرم درخواست'),
+                          ),
+                          Positioned(
+                            bottom: -28,
+                            left: -14,
+                            child: Container(
+                              width: 92,
+                              height: 92,
+                              decoration: BoxDecoration(
+                                color: colorWithOpacity(Colors.white, 0.22),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.fromLTRB(14, 14, 14, 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'طراحی سریع سفارش قطعه',
+                                    style:
+                                        theme.textTheme.headlineSmall?.copyWith(
+                                      fontSize: compact ? 20 : 23,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'مثل اپ‌های بازار ایران، سریع جستجو کنید، موجودی ببینید و همان لحظه درخواست ثبت کنید.',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: const Color(0xFF525252),
+                                      height: 1.45,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  TextField(
+                                    controller: _searchController,
+                                    textInputAction: TextInputAction.search,
+                                    onSubmitted: widget.onSearchSubmitted,
+                                    decoration: InputDecoration(
+                                      hintText:
+                                          'نام قطعه، برند یا کد فنی را وارد کنید',
+                                      prefixIcon:
+                                          const Icon(Icons.search_rounded),
+                                      suffixIcon: IconButton(
+                                        onPressed: () =>
+                                            widget.onSearchSubmitted(
+                                          _searchController.text.trim(),
+                                        ),
+                                        icon: const Icon(
+                                          Icons.tune_rounded,
+                                          color: Color(0xFF1565C0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      final perRow =
+                                          constraints.maxWidth < 380 ? 2 : 3;
+                                      final cardWidth = (constraints.maxWidth -
+                                              ((perRow - 1) * 8)) /
+                                          perRow;
+
+                                      return Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: [
+                                          SizedBox(
+                                            width: cardWidth,
+                                            child: _StatCard(
+                                              value:
+                                                  '${widget.inventory.length}+ ',
+                                              label: 'کالاهای فعال',
+                                              color: const Color(0xFF1565C0),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: cardWidth,
+                                            child: _StatCard(
+                                              value: '$totalStock',
+                                              label: 'موجودی کل',
+                                              color: const Color(0xFF1F4D96),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: cardWidth,
+                                            child: _StatCard(
+                                              value: '$pendingRequests',
+                                              label: 'درخواست باز',
+                                              color: const Color(0xFF8F1D24),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      _QuickBadge(
+                                        icon: Icons.verified_user_rounded,
+                                        text: 'تضمین اصالت',
+                                        color: Color(0xFF1B9C6B),
+                                      ),
+                                      _QuickBadge(
+                                        icon: Icons.local_shipping_rounded,
+                                        text: 'ارسال سریع',
+                                        color: Color(0xFF1F4D96),
+                                      ),
+                                      _QuickBadge(
+                                        icon: Icons.headset_mic_rounded,
+                                        text: 'پشتیبانی فعال',
+                                        color: Color(0xFF1565C0),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    _SectionHeader(
+                      title: 'گاراژ من',
+                      actionLabel: 'انتخاب خودرو',
+                      onTap: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          showDragHandle: true,
+                          builder: (context) {
+                            return SafeArea(
+                              child: ListView(
+                                shrinkWrap: true,
+                                children: [
+                                  const ListTile(
+                                    title: Text(
+                                      'خودروی فعال برای بررسی سازگاری',
+                                    ),
+                                  ),
+                                  ...widget.garageVehicles.map(
+                                    (vehicle) => RadioListTile<String>(
+                                      value: vehicle,
+                                      groupValue: widget.selectedVehicle,
+                                      title: Text(vehicle),
+                                      onChanged: (value) {
+                                        if (value == null) {
+                                          return;
+                                        }
+                                        widget.onVehicleChanged(value);
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 42,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: widget.garageVehicles.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (context, index) {
+                          final vehicle = widget.garageVehicles[index];
+                          final selected = vehicle == widget.selectedVehicle;
+                          return ChoiceChip(
+                            selected: selected,
+                            label: Text(vehicle),
+                            onSelected: (_) => widget.onVehicleChanged(vehicle),
+                            selectedColor: const Color(0x1A1565C0),
+                            side: BorderSide(
+                              color: selected
+                                  ? const Color(0xFF1565C0)
+                                  : const Color(0xFFD9DDE5),
+                            ),
+                            labelStyle: TextStyle(
+                              color: selected
+                                  ? const Color(0xFFB3000D)
+                                  : const Color(0xFF2E3440),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    _SectionHeader(
+                      title: 'دسته‌بندی‌های برتر',
+                      actionLabel: 'مشاهده انبار',
+                      onTap: () => widget.onCategoryTap('همه'),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 114,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: categories.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final category = categories[index];
+                          return InkWell(
+                            onTap: () => widget.onCategoryTap(category.name),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Ink(
+                              width: categoryCardWidth,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: colorWithOpacity(category.color, 0.11),
+                                border: Border.all(
+                                  color: colorWithOpacity(category.color, 0.3),
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(category.icon, color: category.color),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    category.name,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFF1D1D1D),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    _SectionHeader(
+                      title: 'کمپین‌های امروز',
+                      actionLabel: 'همه تخفیف‌ها',
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: compact ? 130 : 142,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: DemoData.campaigns.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                        itemBuilder: (context, index) {
+                          final campaign = DemoData.campaigns[index];
+                          return SizedBox(
+                            width: tablet ? 330 : (compact ? 250 : 290),
+                            child: _CampaignCard(campaign: campaign),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    _SectionHeader(
+                      title: 'پیشنهادهای ویژه',
+                      actionLabel: 'مشاهده همه',
+                      onTap: () => widget.onCategoryTap('همه'),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: dealCardHeight,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: featured.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 14),
+                        itemBuilder: (context, index) {
+                          final part = featured[index];
+                          return SizedBox(
+                            width: dealCardWidth,
+                            child: _DealCard(
+                              part: part,
+                              selectedVehicle: widget.selectedVehicle,
+                              isFavorite:
+                                  widget.favoritePartIds.contains(part.id),
+                              onFavorite: () =>
+                                  widget.onToggleFavorite(part.id),
+                              onView: () => widget.onSearchSubmitted(part.name),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 26),
+                    _GlassCard(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF202434), Color(0xFF303A58)],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'به قطعه دقیق نیاز دارید؟',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'فرم درخواست را با VIN و مشخصات خودرو ثبت کنید تا قیمت و موجودی را سریع دریافت کنید.',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFFD0D5DD),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            FilledButton.icon(
+                              onPressed: widget.onRequestTap,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFF1E88E5),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 12,
+                                ),
+                              ),
+                              icon:
+                                  const Icon(Icons.playlist_add_check_rounded),
+                              label: const Text('باز کردن فرم درخواست'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -664,7 +875,10 @@ class InventoryPage extends StatefulWidget {
     required this.inventory,
     required this.selectedCategory,
     required this.searchQuery,
+    required this.selectedVehicle,
+    required this.garageVehicles,
     required this.favoritePartIds,
+    required this.onVehicleChanged,
     required this.onCategoryChanged,
     required this.onSearchChanged,
     required this.onToggleFavorite,
@@ -674,7 +888,10 @@ class InventoryPage extends StatefulWidget {
   final List<SparePart> inventory;
   final String selectedCategory;
   final String searchQuery;
+  final String selectedVehicle;
+  final List<String> garageVehicles;
   final Set<int> favoritePartIds;
+  final ValueChanged<String> onVehicleChanged;
   final ValueChanged<String> onCategoryChanged;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<int> onToggleFavorite;
@@ -686,6 +903,7 @@ class InventoryPage extends StatefulWidget {
 class _InventoryPageState extends State<InventoryPage> {
   final TextEditingController _searchController = TextEditingController();
   SortMode _sortMode = SortMode.popular;
+  bool _onlyCompatible = false;
 
   @override
   void initState() {
@@ -729,7 +947,12 @@ class _InventoryPageState extends State<InventoryPage> {
               .join(' ')
               .toLowerCase()
               .contains(query);
-      return categoryMatch && queryMatch;
+      final vehicleMatch = isVehicleCompatible(
+        selectedVehicle: widget.selectedVehicle,
+        compatibilityText: part.compatibility,
+      );
+      final compatibleFilter = !_onlyCompatible || vehicleMatch;
+      return categoryMatch && queryMatch && compatibleFilter;
     }).toList();
 
     visibleParts.sort((a, b) {
@@ -783,9 +1006,74 @@ class _InventoryPageState extends State<InventoryPage> {
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: colorWithOpacity(const Color(0xFF1F4D96), 0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: colorWithOpacity(const Color(0xFF1F4D96), 0.20),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PopupMenuButton<String>(
+                      tooltip: 'انتخاب خودرو',
+                      onSelected: widget.onVehicleChanged,
+                      itemBuilder: (context) => widget.garageVehicles
+                          .map(
+                            (vehicle) => PopupMenuItem<String>(
+                              value: vehicle,
+                              child: Text(vehicle),
+                            ),
+                          )
+                          .toList(),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.directions_car_filled_rounded,
+                            size: 18,
+                            color: Color(0xFF1F4D96),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'خودرو: ${widget.selectedVehicle}',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF1F4D96),
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Icon(Icons.keyboard_arrow_down_rounded),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'فقط سازگار',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: const Color(0xFF1F4D96),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Switch.adaptive(
+                    value: _onlyCompatible,
+                    onChanged: (value) {
+                      setState(() => _onlyCompatible = value);
+                    },
+                    activeColor: const Color(0xFF1565C0),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
@@ -805,8 +1093,8 @@ class _InventoryPageState extends State<InventoryPage> {
                     avatar: selected
                         ? const Icon(Icons.check_circle_rounded, size: 18)
                         : null,
-                    selectedColor: const Color(0x1AE74C3C),
-                    checkmarkColor: const Color(0xFFE74C3C),
+                    selectedColor: const Color(0x1A1E88E5),
+                    checkmarkColor: const Color(0xFF1E88E5),
                   );
                 },
               ),
@@ -831,7 +1119,7 @@ class _InventoryPageState extends State<InventoryPage> {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: colorWithOpacity(const Color(0xFF1F4D96), 0.09),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: colorWithOpacity(const Color(0xFF1F4D96), 0.25),
                       ),
@@ -910,6 +1198,7 @@ class _InventoryPageState extends State<InventoryPage> {
                       final part = visibleParts[index];
                       return _InventoryCard(
                         part: part,
+                        selectedVehicle: widget.selectedVehicle,
                         isFavorite: widget.favoritePartIds.contains(part.id),
                         onFavoriteTap: () => widget.onToggleFavorite(part.id),
                       );
@@ -1183,7 +1472,7 @@ class _RequestPartPageState extends State<RequestPartPage> {
                         onPressed: _submitRequest,
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: const Color(0xFFE30613),
+                          backgroundColor: const Color(0xFF1565C0),
                           foregroundColor: Colors.white,
                         ),
                         icon: const Icon(Icons.send_rounded),
@@ -1341,7 +1630,7 @@ class _ManagementPageState extends State<ManagementPage> {
                       label: 'پیش‌فاکتور آماده',
                       value: '$quoteReady',
                       icon: Icons.request_quote_rounded,
-                      color: const Color(0xFFE30613),
+                      color: const Color(0xFF1565C0),
                     ),
                     _MetricCard(
                       width: cardWidth,
@@ -1455,7 +1744,7 @@ class _ManagementPageState extends State<ManagementPage> {
                             return Container(
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFF4F2),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
                                   color: const Color(0xFFFECACA),
                                 ),
@@ -1467,10 +1756,10 @@ class _ManagementPageState extends State<ManagementPage> {
                                     Row(
                                       children: [
                                         const CircleAvatar(
-                                          backgroundColor: Color(0x1AE74C3C),
+                                          backgroundColor: Color(0x1A1E88E5),
                                           child: Icon(
                                             Icons.warning_amber_rounded,
-                                            color: Color(0xFFE74C3C),
+                                            color: Color(0xFF1E88E5),
                                           ),
                                         ),
                                         const SizedBox(width: 10),
@@ -1494,7 +1783,7 @@ class _ManagementPageState extends State<ManagementPage> {
                                             onPressed: () {},
                                             style: FilledButton.styleFrom(
                                               backgroundColor:
-                                                  const Color(0xFFE30613),
+                                                  const Color(0xFF1565C0),
                                               foregroundColor: Colors.white,
                                             ),
                                             child: const Text('شارژ موجودی'),
@@ -1509,7 +1798,7 @@ class _ManagementPageState extends State<ManagementPage> {
                                           onPressed: () {},
                                           style: FilledButton.styleFrom(
                                             backgroundColor:
-                                                const Color(0xFFE30613),
+                                                const Color(0xFF1565C0),
                                             foregroundColor: Colors.white,
                                           ),
                                           child: const Text('شارژ موجودی'),
@@ -1534,15 +1823,151 @@ class _ManagementPageState extends State<ManagementPage> {
   }
 }
 
+class _CampaignCard extends StatelessWidget {
+  const _CampaignCard({required this.campaign});
+
+  final Campaign campaign;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFDDE2EC)),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: _NetworkPhoto(
+                imageUrl: campaign.imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                gradient: LinearGradient(
+                  colors: [
+                    colorWithOpacity(campaign.startColor, 0.82),
+                    colorWithOpacity(campaign.endColor, 0.76),
+                  ],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: colorWithOpacity(Colors.white, 0.22),
+                  child: Icon(campaign.icon, color: Colors.white),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        campaign.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        campaign.subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: colorWithOpacity(Colors.white, 0.92),
+                              height: 1.35,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.chevron_left_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NetworkPhoto extends StatelessWidget {
+  const _NetworkPhoto({
+    required this.imageUrl,
+    this.fit = BoxFit.cover,
+  });
+
+  final String imageUrl;
+  final BoxFit fit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      imageUrl,
+      fit: fit,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) {
+          return child;
+        }
+        return Container(
+          color: const Color(0xFFF1F4F9),
+          alignment: Alignment.center,
+          child: const SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: const Color(0xFFF1F4F9),
+          alignment: Alignment.center,
+          child: const Icon(
+            Icons.image_not_supported_outlined,
+            color: Color(0xFF7C8697),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _DealCard extends StatelessWidget {
   const _DealCard({
     required this.part,
+    required this.selectedVehicle,
     required this.isFavorite,
     required this.onFavorite,
     required this.onView,
   });
 
   final SparePart part;
+  final String selectedVehicle;
   final bool isFavorite;
   final VoidCallback onFavorite;
   final VoidCallback onView;
@@ -1551,6 +1976,10 @@ class _DealCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final discount =
         ((part.oldPrice - part.price) / part.oldPrice * 100).round();
+    final compatible = isVehicleCompatible(
+      selectedVehicle: selectedVehicle,
+      compatibilityText: part.compatibility,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1570,13 +1999,13 @@ class _DealCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0x1AE74C3C),
+                        color: const Color(0x1A1E88E5),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
                         '${toPersianDigits(discount)}٪ تخفیف',
                         style: const TextStyle(
-                          color: Color(0xFFE74C3C),
+                          color: Color(0xFF1E88E5),
                           fontWeight: FontWeight.w800,
                           fontSize: 11,
                         ),
@@ -1595,7 +2024,7 @@ class _DealCard extends StatelessWidget {
                         isFavorite
                             ? Icons.favorite_rounded
                             : Icons.favorite_border,
-                        color: isFavorite ? const Color(0xFFE74C3C) : null,
+                        color: isFavorite ? const Color(0xFF1E88E5) : null,
                       ),
                     ),
                   ],
@@ -1606,22 +2035,45 @@ class _DealCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [
-                        Color(0x1AE30613),
+                        Color(0x1A1565C0),
                         Color(0xFFF8F8FA),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: const Color(0xFFE6E8ED)),
                   ),
-                  child: Icon(
-                    Icons.precision_manufacturing_rounded,
-                    size: compact ? 30 : 38,
-                    color: const Color(0xFF1E1E1E),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: _NetworkPhoto(
+                      imageUrl: part.imageUrl,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 SizedBox(height: spacing),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: compatible
+                        ? const Color(0x1A22C55E)
+                        : const Color(0x1AF59E0B),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    compatible ? 'سازگار با خودرو' : 'نیاز به بررسی سازگاری',
+                    style: TextStyle(
+                      color: compatible
+                          ? const Color(0xFF15803D)
+                          : const Color(0xFFB45309),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                SizedBox(height: compact ? 4 : 6),
                 Text(
                   part.name,
                   maxLines: compact ? 1 : 2,
@@ -1652,7 +2104,7 @@ class _DealCard extends StatelessWidget {
                 Text(
                   formatPrice(part.price),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: const Color(0xFFE74C3C),
+                        color: const Color(0xFF1E88E5),
                         fontWeight: FontWeight.w800,
                       ),
                 ),
@@ -1663,13 +2115,13 @@ class _DealCard extends StatelessWidget {
                     onPressed: onView,
                     style: compact
                         ? FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFE30613),
+                            backgroundColor: const Color(0xFF1565C0),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           )
                         : FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFE30613),
+                            backgroundColor: const Color(0xFF1565C0),
                             foregroundColor: Colors.white,
                           ),
                     child: Text(compact ? 'جزئیات' : 'مشاهده جزئیات'),
@@ -1687,16 +2139,23 @@ class _DealCard extends StatelessWidget {
 class _InventoryCard extends StatelessWidget {
   const _InventoryCard({
     required this.part,
+    required this.selectedVehicle,
     required this.isFavorite,
     required this.onFavoriteTap,
   });
 
   final SparePart part;
+  final String selectedVehicle;
   final bool isFavorite;
   final VoidCallback onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
+    final compatible = isVehicleCompatible(
+      selectedVehicle: selectedVehicle,
+      compatibilityText: part.compatibility,
+    );
+
     return _GlassCard(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -1731,7 +2190,7 @@ class _InventoryCard extends StatelessWidget {
                   icon: Icon(
                     isFavorite ? Icons.favorite_rounded : Icons.favorite_border,
                     color: isFavorite
-                        ? const Color(0xFFE74C3C)
+                        ? const Color(0xFF1E88E5)
                         : const Color(0xFF667085),
                   ),
                 ),
@@ -1741,19 +2200,21 @@ class _InventoryCard extends StatelessWidget {
               width: double.infinity,
               height: 78,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0x16E30613),
+                    Color(0x161565C0),
                     Color(0xFFF8F8FA),
                   ],
                 ),
                 border: Border.all(color: const Color(0xFFE6E8ED)),
               ),
-              child: const Icon(
-                Icons.build_circle_outlined,
-                color: Color(0xFF242424),
-                size: 34,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: _NetworkPhoto(
+                  imageUrl: part.imageUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -1781,6 +2242,31 @@ class _InventoryCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+            const SizedBox(height: 6),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: compatible
+                      ? const Color(0x1A22C55E)
+                      : const Color(0x1AF59E0B),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  compatible
+                      ? 'سازگار با خودروی فعال'
+                      : 'نیازمند بررسی سازگاری',
+                  style: TextStyle(
+                    color: compatible
+                        ? const Color(0xFF15803D)
+                        : const Color(0xFFB45309),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
             const Spacer(),
             Row(
               children: [
@@ -1792,7 +2278,7 @@ class _InventoryCard extends StatelessWidget {
                 Text(
                   formatPrice(part.price),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: const Color(0xFFE74C3C),
+                        color: const Color(0xFF1E88E5),
                         fontWeight: FontWeight.w800,
                       ),
                 ),
@@ -1883,7 +2369,7 @@ class _ManagementRequestCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -2006,7 +2492,7 @@ class _StatCard extends StatelessWidget {
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFE3E6EC)),
       ),
       child: Column(
@@ -2102,7 +2588,7 @@ class _MetricCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFE5E7EC)),
         boxShadow: const [
           BoxShadow(
@@ -2169,7 +2655,7 @@ class _SectionHeader extends StatelessWidget {
           icon: const Icon(Icons.chevron_left_rounded, size: 18),
           label: Text(actionLabel),
           style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFFE30613),
+            foregroundColor: const Color(0xFF1565C0),
             textStyle: const TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
@@ -2196,14 +2682,14 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: const Color(0x1AE74C3C),
-            child: Icon(icon, color: const Color(0xFFE74C3C)),
+            backgroundColor: const Color(0x1A1E88E5),
+            child: Icon(icon, color: const Color(0xFF1E88E5)),
           ),
           const SizedBox(height: 10),
           Text(
@@ -2244,7 +2730,7 @@ class _GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: gradient,
         color: gradient == null ? Colors.white : null,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFE6E8ED)),
         boxShadow: const [
           BoxShadow(
@@ -2275,12 +2761,12 @@ class _AmbientBackground extends StatelessWidget {
           Positioned(
             top: -155,
             left: -95,
-            child: _ambientBlob(const Color(0x1FE30613), 300),
+            child: _ambientBlob(const Color(0x1F1565C0), 300),
           ),
           Positioned(
             bottom: -195,
             right: -130,
-            child: _ambientBlob(const Color(0x22E30613), 360),
+            child: _ambientBlob(const Color(0x221565C0), 360),
           ),
           Positioned(
             top: 95,
@@ -2352,6 +2838,7 @@ class SparePart {
     required this.rating,
     required this.warehouse,
     required this.featured,
+    required this.imageUrl,
   });
 
   final int id;
@@ -2366,11 +2853,12 @@ class SparePart {
   final double rating;
   final String warehouse;
   final bool featured;
+  final String imageUrl;
 
   Color get categoryColor {
     switch (category) {
       case 'موتور':
-        return const Color(0xFFE74C3C);
+        return const Color(0xFF1E88E5);
       case 'ترمز':
         return const Color(0xFFB45309);
       case 'برقی':
@@ -2446,6 +2934,24 @@ class PartCategory {
   final Color color;
 }
 
+class Campaign {
+  const Campaign({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.startColor,
+    required this.endColor,
+    required this.imageUrl,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color startColor;
+  final Color endColor;
+  final String imageUrl;
+}
+
 enum UrgencyLevel {
   normal,
   high,
@@ -2501,7 +3007,7 @@ extension UrgencyLevelX on UrgencyLevel {
       case UrgencyLevel.high:
         return const Color(0x1AF59E0B);
       case UrgencyLevel.critical:
-        return const Color(0x1AE74C3C);
+        return const Color(0x1A1E88E5);
     }
   }
 
@@ -2555,7 +3061,7 @@ extension RequestStatusX on RequestStatus {
       case RequestStatus.delivered:
         return const Color(0x1A22C55E);
       case RequestStatus.canceled:
-        return const Color(0x1AE74C3C);
+        return const Color(0x1A1E88E5);
     }
   }
 
@@ -2576,11 +3082,41 @@ extension RequestStatusX on RequestStatus {
 }
 
 class DemoData {
+  static const campaigns = <Campaign>[
+    Campaign(
+      title: 'جشنواره سرویس دوره‌ای',
+      subtitle: 'تا ۲۵٪ تخفیف روی فیلترها، روغن و کیت مصرفی',
+      icon: Icons.local_offer_rounded,
+      startColor: Color(0xFF1565C0),
+      endColor: Color(0xFF42A5F5),
+      imageUrl:
+          'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+    ),
+    Campaign(
+      title: 'فروش ویژه تعمیرگاه‌ها',
+      subtitle: 'قیمت همکاری و پیش‌فاکتور فوری برای سفارش عمده',
+      icon: Icons.storefront_rounded,
+      startColor: Color(0xFF1F4D96),
+      endColor: Color(0xFF2E69C7),
+      imageUrl:
+          'https://images.pexels.com/photos/3807501/pexels-photo-3807501.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+    ),
+    Campaign(
+      title: 'ارسال سریع تهران',
+      subtitle: 'برای کالاهای منتخب، تحویل همان‌روز',
+      icon: Icons.local_shipping_rounded,
+      startColor: Color(0xFF0D7E5A),
+      endColor: Color(0xFF2A9D73),
+      imageUrl:
+          'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+    ),
+  ];
+
   static const categories = <PartCategory>[
     PartCategory(
       name: 'موتور',
       icon: Icons.settings,
-      color: Color(0xFFE74C3C),
+      color: Color(0xFF1E88E5),
     ),
     PartCategory(
       name: 'ترمز',
@@ -2611,13 +3147,15 @@ class DemoData {
       brand: 'Bosch',
       sku: 'ENG-4481-BS',
       category: 'موتور',
-      compatibility: 'سازگار با Toyota Corolla 2018-2022',
+      compatibility: 'مناسب پژو 206 تیپ 2 و 3',
       price: 84,
       oldPrice: 109,
       stock: 14,
       rating: 4.8,
       warehouse: 'انبار مرکزی اربیل',
       featured: true,
+      imageUrl:
+          'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 2,
@@ -2625,13 +3163,15 @@ class DemoData {
       brand: 'Brembo',
       sku: 'BRK-2190-BR',
       category: 'ترمز',
-      compatibility: 'سازگار با Hyundai Tucson 2019-2023',
+      compatibility: 'مناسب دنا پلاس و سمند EF7',
       price: 142,
       oldPrice: 169,
       stock: 8,
       rating: 4.7,
       warehouse: 'هاب سلیمانیه',
       featured: true,
+      imageUrl:
+          'https://images.pexels.com/photos/4489734/pexels-photo-4489734.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 3,
@@ -2639,13 +3179,15 @@ class DemoData {
       brand: 'Varta',
       sku: 'ELE-5320-VT',
       category: 'برقی',
-      compatibility: 'سازگار با Nissan Patrol 2016-2021',
+      compatibility: 'مناسب جک S5 و ام‌وی‌ام X33',
       price: 188,
       oldPrice: 219,
       stock: 5,
       rating: 4.9,
       warehouse: 'انبار مرکزی اربیل',
       featured: true,
+      imageUrl:
+          'https://images.pexels.com/photos/3807501/pexels-photo-3807501.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 4,
@@ -2653,13 +3195,15 @@ class DemoData {
       brand: 'TYG',
       sku: 'BDY-9021-TY',
       category: 'بدنه',
-      compatibility: 'سازگار با Kia Sportage 2017-2021',
+      compatibility: 'مناسب شاهین G و تارا V1',
       price: 126,
       oldPrice: 152,
       stock: 3,
       rating: 4.4,
       warehouse: 'انبار دهوک',
       featured: false,
+      imageUrl:
+          'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 5,
@@ -2667,13 +3211,15 @@ class DemoData {
       brand: 'Monroe',
       sku: 'SUS-3310-MN',
       category: 'تعلیق',
-      compatibility: 'سازگار با Mitsubishi L200 2015-2022',
+      compatibility: 'مناسب دنا پلاس توربو',
       price: 176,
       oldPrice: 210,
       stock: 9,
       rating: 4.6,
       warehouse: 'انبار مرکزی اربیل',
       featured: true,
+      imageUrl:
+          'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 6,
@@ -2681,13 +3227,15 @@ class DemoData {
       brand: 'Toyota',
       sku: 'ENG-0157-TY',
       category: 'موتور',
-      compatibility: 'سازگار با Toyota Camry 2016-2023',
+      compatibility: 'مناسب پژو پارس TU5 و سمند',
       price: 35,
       oldPrice: 44,
       stock: 26,
       rating: 4.5,
       warehouse: 'شعبه شریک کرکوک',
       featured: false,
+      imageUrl:
+          'https://images.pexels.com/photos/4489734/pexels-photo-4489734.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 7,
@@ -2695,13 +3243,15 @@ class DemoData {
       brand: 'Valeo',
       sku: 'ELE-8822-VA',
       category: 'برقی',
-      compatibility: 'سازگار با Volkswagen Passat 2020-2024',
+      compatibility: 'مناسب کوییک R و ساینا S',
       price: 244,
       oldPrice: 279,
       stock: 4,
       rating: 4.7,
       warehouse: 'هاب سلیمانیه',
       featured: true,
+      imageUrl:
+          'https://images.pexels.com/photos/3807501/pexels-photo-3807501.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 8,
@@ -2709,13 +3259,15 @@ class DemoData {
       brand: 'TRW',
       sku: 'BRK-6621-TR',
       category: 'ترمز',
-      compatibility: 'سازگار با Mazda CX-5 2018-2023',
+      compatibility: 'مناسب پراید 111 و تیبا 2',
       price: 120,
       oldPrice: 147,
       stock: 12,
       rating: 4.4,
       warehouse: 'انبار مرکزی اربیل',
       featured: false,
+      imageUrl:
+          'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 9,
@@ -2723,13 +3275,15 @@ class DemoData {
       brand: 'Mahle',
       sku: 'ENG-7720-MH',
       category: 'موتور',
-      compatibility: 'سازگار با Ford Ranger 2019-2024',
+      compatibility: 'مناسب وانت آریسان و پیکاپ کارا',
       price: 98,
       oldPrice: 126,
       stock: 7,
       rating: 4.3,
       warehouse: 'انبار دهوک',
       featured: false,
+      imageUrl:
+          'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 10,
@@ -2737,13 +3291,15 @@ class DemoData {
       brand: 'Lemforder',
       sku: 'SUS-1144-LM',
       category: 'تعلیق',
-      compatibility: 'سازگار با BMW X3 2017-2022',
+      compatibility: 'مناسب ال90 و ساندرو',
       price: 159,
       oldPrice: 189,
       stock: 6,
       rating: 4.8,
       warehouse: 'هاب سلیمانیه',
       featured: false,
+      imageUrl:
+          'https://images.pexels.com/photos/4489734/pexels-photo-4489734.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 11,
@@ -2751,13 +3307,15 @@ class DemoData {
       brand: 'Depo',
       sku: 'BDY-4808-DP',
       category: 'بدنه',
-      compatibility: 'سازگار با Honda Civic 2019-2023',
+      compatibility: 'مناسب شاهین G',
       price: 92,
       oldPrice: 111,
       stock: 11,
       rating: 4.2,
       warehouse: 'شعبه شریک کرکوک',
       featured: false,
+      imageUrl:
+          'https://images.pexels.com/photos/3807501/pexels-photo-3807501.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
     SparePart(
       id: 12,
@@ -2765,13 +3323,15 @@ class DemoData {
       brand: 'Denso',
       sku: 'ELE-5904-DE',
       category: 'برقی',
-      compatibility: 'سازگار با Suzuki Vitara 2018-2022',
+      compatibility: 'مناسب سمند EF7 و دنا معمولی',
       price: 138,
       oldPrice: 166,
       stock: 2,
       rating: 4.5,
       warehouse: 'انبار مرکزی اربیل',
       featured: false,
+      imageUrl:
+          'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
     ),
   ];
 
@@ -2845,6 +3405,31 @@ Color colorWithOpacity(Color color, double opacity) {
     colorValue & 0xFF,
     clampedOpacity,
   );
+}
+
+bool isVehicleCompatible({
+  required String selectedVehicle,
+  required String compatibilityText,
+}) {
+  if (selectedVehicle == 'همه خودروها') {
+    return true;
+  }
+
+  final normalizedVehicle =
+      selectedVehicle.toLowerCase().replaceAll('‌', ' ').replaceAll('-', ' ');
+  final normalizedCompatibility =
+      compatibilityText.toLowerCase().replaceAll('‌', ' ').replaceAll('-', ' ');
+
+  final keywords = normalizedVehicle
+      .split(' ')
+      .where((word) => word.trim().length >= 3)
+      .toList();
+
+  if (keywords.isEmpty) {
+    return normalizedCompatibility.contains(normalizedVehicle.trim());
+  }
+
+  return keywords.any(normalizedCompatibility.contains);
 }
 
 String formatDate(DateTime date) {
